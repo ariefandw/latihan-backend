@@ -1,0 +1,32 @@
+{
+  "kind": "collectionType",
+  "collectionName": "pasiens",
+  "info": {
+    "singularName": "pasien",
+    "pluralName": "pasiens",
+    "displayName": "Pasien",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "nama": {
+      "type": "string"
+    },
+    "alamat": {
+      "type": "text"
+    },
+    "jenis_kelamin": {
+      "type": "enumeration",
+      "enum": [
+        "laki-laki",
+        "perempuan"
+      ]
+    },
+    "tanggal_lahir": {
+      "type": "date"
+    }
+  }
+}

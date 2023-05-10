@@ -1,0 +1,10 @@
+1. Install nodejs
+2. Install yarn
+corepack prepare yarn@stable --activate
+3. restart komputer
+4. Install strapi
+yarn create strapi-app latihan-backend --quickstart
+Ctrl + C
+cd latihan-backend
+yarn install
+yarn develop
