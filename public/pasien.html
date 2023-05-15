@@ -12,12 +12,7 @@
   <body>
     <h2>Pasien</h2>
 
-    <button
-      type="button"
-      class="btn btn-primary"
-      data-bs-toggle="modal"
-      data-bs-target="#pasienModal"
-    >
+    <button type="button" class="btn btn-primary" onclick="createPasien()">
       Tambah
     </button>
 
@@ -29,6 +24,7 @@
           <th>Alamat</th>
           <th>Jenis Kelamin</th>
           <th>Tanggal Lahir</th>
+          <th>Aksi</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -50,6 +46,7 @@
             <form id="myForm">
               <div class="mb-3">
                 <label for="nama" class="form-label">Nama</label>
+                <input type="hidden" id="id" name="id" />
                 <input type="text" class="form-control" id="nama" name="nama" />
               </div>
               <div class="mb-3">
@@ -93,27 +90,47 @@
     </div>
 
     <script>
-      const url = "http://localhost:1337/api/pasiens";
-      fetch(url)
-        .then((response) => response.json())
-        .then((data) => {
-          const table = document.querySelector("#table-data tbody");
-          data.data.forEach((pasien) => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
+      function getPasien() {
+        const url = "http://localhost:1337/api/pasiens";
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            document.querySelector("#table-data tbody").remove();
+            const t = document.querySelector("#table-data");
+            t.appendChild(document.createElement("tbody"));
+            const table = document.querySelector("#table-data tbody");
+            data.data.forEach((pasien) => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
               <td>${pasien.id}</td>
               <td>${pasien.attributes.nama}</td>
               <td>${pasien.attributes.alamat}</td>
               <td>${pasien.attributes.jenis_kelamin}</td>
               <td>${pasien.attributes.tanggal_lahir}</td>
+              <td>
+                <div class="btn-group btn-group-sm" role="group" aria-label="Basic mixed styles example">
+                  <button type="button" class="btn btn-warning"
+                    onclick="editPasien(${pasien.id})">
+                    Edit
+                  </button>
+                  <button type="button" class="btn btn-danger"
+                    onclick="deletePasien(${pasien.id})">
+                    Delete
+                  </button>
+                </div>
+              </td>
             `;
-            table.appendChild(row);
-          });
-        })
-        .catch((error) => console.error(error));
+              table.appendChild(row);
+            });
+          })
+          .catch((error) => console.error(error));
+      }
 
       const form = document.querySelector("#myForm");
       form.addEventListener("submit", (event) => {
+        const pasienModal = bootstrap.Modal.getInstance(
+          document.querySelector("#pasienModal")
+        );
         event.preventDefault();
         const data = {
           nama: form.nama.value,
@@ -122,19 +139,84 @@
           tanggal_lahir: form.tanggal_lahir.value,
         };
 
-        fetch("http://localhost:1337/api/pasiens", {
-          method: "POST",
+        if (form.id.value == "") {
+          fetch("http://localhost:1337/api/pasiens", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ data }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+              getPasien();
+              pasienModal.hide();
+            });
+        } else {
+          console.log(form.id.value);
+          console.log(JSON.stringify({ data }));
+          fetch("http://localhost:1337/api/pasiens/" + form.id.value, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ data }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+              getPasien();
+              pasienModal.hide();
+            });
+        }
+      });
+
+      function createPasien() {
+        const pasienModal = new bootstrap.Modal(
+          document.querySelector("#pasienModal")
+        );
+        pasienModal.show();
+        const form = document.querySelector("#myForm");
+        form.id.value = null;
+      }
+
+      function deletePasien(id) {
+        fetch("http://localhost:1337/api/pasiens/" + id, {
+          method: "DELETE",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ data }),
         })
           .then((response) => response.json())
           .then((data) => {
             console.log(data);
             location.reload();
           });
-      });
+      }
+
+      function editPasien(id) {
+        const pasienModal = new bootstrap.Modal(
+          document.querySelector("#pasienModal")
+        );
+        pasienModal.show();
+
+        const form = document.querySelector("#myForm");
+        fetch("http://localhost:1337/api/pasiens/" + id)
+          .then((response) => response.json())
+          .then((data) => {
+            const pasien = data.data;
+            console.log(pasien);
+            form.id.value = pasien.id;
+            form.nama.value = pasien.attributes.nama;
+            form.alamat.value = pasien.attributes.alamat;
+            form.jenis_kelamin.value = pasien.attributes.jenis_kelamin;
+            form.tanggal_lahir.value = pasien.attributes.tanggal_lahir;
+          })
+          .catch((error) => console.error(error));
+      }
+
+      getPasien();
     </script>
 
     <script
