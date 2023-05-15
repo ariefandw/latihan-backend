@@ -90,6 +90,7 @@
     </div>
 
     <script>
+      // GET DATA SEMUA PASIEN
       function getPasien() {
         const url = "http://localhost:1337/api/pasiens";
         fetch(url)
@@ -126,6 +127,7 @@
           .catch((error) => console.error(error));
       }
 
+      // SUBMIT DATA PASIEN (TAMBAH/EDIT)
       const form = document.querySelector("#myForm");
       form.addEventListener("submit", (event) => {
         const pasienModal = bootstrap.Modal.getInstance(
@@ -172,6 +174,7 @@
         }
       });
 
+      // MEMUNCULKAN FORM TAMBAH DATA PASIEN
       function createPasien() {
         const pasienModal = new bootstrap.Modal(
           document.querySelector("#pasienModal")
@@ -181,20 +184,7 @@
         form.id.value = null;
       }
 
-      function deletePasien(id) {
-        fetch("http://localhost:1337/api/pasiens/" + id, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            console.log(data);
-            location.reload();
-          });
-      }
-
+      // MEMUNCULKAN FORM EDIT DATA PASIEN
       function editPasien(id) {
         const pasienModal = new bootstrap.Modal(
           document.querySelector("#pasienModal")
@@ -216,6 +206,26 @@
           .catch((error) => console.error(error));
       }
 
+      // HAPUS DATA PASIEN
+      function deletePasien(id) {
+        const pasienModal = bootstrap.Modal.getInstance(
+          document.querySelector("#pasienModal")
+        );
+        fetch("http://localhost:1337/api/pasiens/" + id, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            getPasien();
+            pasienModal.hide();
+          });
+      }
+
+      // EKSEKUSI GET PASIEN SAAT AWAL HALAMAN DIMUAT
       getPasien();
     </script>
 
