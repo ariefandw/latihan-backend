@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Data Dokter</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <nav
+      class="navbar navbar-expand-lg bg-body-tertiary bg-dark"
+      data-bs-theme="dark"
+    >
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="home.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="dokter.html">Dokter</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="dokter.html">Dokter</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <h2>Dokter</h2>
+
+      <button type="button" class="btn btn-primary" onclick="createDokter()">
+        Tambah
+      </button>
+
+      <table id="table-data" class="table table-sm">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>No STR</th>
+            <th>Nama</th>
+            <th>Jenis Kelamin</th>
+            <th>Spesialis</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div class="modal fade" id="dokterModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Add Data</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <form id="myForm">
+                <input type="hidden" id="id" name="id" />
+                <div class="mb-3">
+                  <label for="no_str" class="form-label">No STR</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="no_str"
+                    name="no_str"
+                  />
+                <div class="mb-3">
+                  <label for="nama" class="form-label">Nama</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="nama"
+                    name="nama"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="jenis_kelamin" class="form-label"
+                    >Jenis Kelamin</label
+                  >
+                  <select
+                    class="form-select"
+                    id="jenis_kelamin"
+                    name="jenis_kelamin"
+                  >
+                    <option value="laki-laki">Laki-laki</option>
+                    <option value="perempuan">Perempuan</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="spesialis" class="form-label">Spesialis</label>
+                  <select
+                    class="form-select"
+                    id="spesialis"
+                    name="spesialis"
+                  >
+                    <option value="umum">Umum</option>
+                    <option value="bedah_syaraf">Bedah Syaraf</option>
+                    <option value="obgyn">Obgyn</option>
+                    <option value="penyakit_dalam">Penyakit Dalam</option>
+                    <option value="mata">Mata</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // GET DATA SEMUA PASIEN
+      function getDokter() {
+        const url = "http://localhost:1337/api/dokters";
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            document.querySelector("#table-data tbody").remove();
+            const t = document.querySelector("#table-data");
+            t.appendChild(document.createElement("tbody"));
+            const table = document.querySelector("#table-data tbody");
+            data.data.forEach((dokter) => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+              <td>${dokter.id}</td>
+              <td>${dokter.attributes.no_str}</td>
+              <td>${dokter.attributes.nama}</td>
+              <td>${dokter.attributes.jenis_kelamin}</td>
+              <td>${dokter.attributes.spesialis}</td>
+              <td>
+                <div class="btn-group btn-group-sm" role="group" aria-label="Basic mixed styles example">
+                  <button type="button" class="btn btn-warning"
+                    onclick="editDokter(${dokter.id})">
+                    Edit
+                  </button>
+                  <button type="button" class="btn btn-danger"
+                    onclick="deleteDokter(${dokter.id})">
+                    Delete
+                  </button>
+                </div>
+              </td>
+            `;
+              table.appendChild(row);
+            });
+          })
+          .catch((error) => console.error(error));
+      }
+
+      // SUBMIT DATA PASIEN (TAMBAH/EDIT)
+      const form = document.querySelector("#myForm");
+      form.addEventListener("submit", (event) => {
+        const dokterModal = bootstrap.Modal.getInstance(
+          document.querySelector("#dokterModal")
+        );
+        event.preventDefault();
+        const data = {
+          no_str: form.no_str.value,
+          nama: form.nama.value,
+          jenis_kelamin: form.jenis_kelamin.value,
+          spesialis: form.spesialis.value,
+        };
+
+        if (form.id.value == "") {
+          fetch("http://localhost:1337/api/dokters", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ data }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+              getDokter();
+              dokterModal.hide();
+            });
+        } else {
+          console.log(form.id.value);
+          console.log(JSON.stringify({ data }));
+          fetch("http://localhost:1337/api/dokters/" + form.id.value, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ data }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+              getDokter();
+              dokterModal.hide();
+            });
+        }
+      });
+
+      // MEMUNCULKAN FORM TAMBAH DATA PASIEN
+      function createDokter() {
+        const dokterModal = new bootstrap.Modal(
+          document.querySelector("#dokterModal")
+        );
+        dokterModal.show();
+        const form = document.querySelector("#myForm");
+        form.id.value = null;
+      }
+
+      // MEMUNCULKAN FORM EDIT DATA PASIEN
+      function editDokter(id) {
+        const dokterModal = new bootstrap.Modal(
+          document.querySelector("#dokterModal")
+        );
+        dokterModal.show();
+
+        const form = document.querySelector("#myForm");
+        fetch("http://localhost:1337/api/dokters/" + id)
+          .then((response) => response.json())
+          .then((data) => {
+            const dokter = data.data;
+            console.log(dokter);
+            form.id.value = dokter.id;
+            form.no_str.value = dokter.attributes.no_str;
+            form.nama.value = dokter.attributes.nama;
+            form.jenis_kelamin.value = dokter.attributes.jenis_kelamin;
+            form.spesialis.value = dokter.attributes.spesialis;
+          })
+          .catch((error) => console.error(error));
+      }
+
+      // HAPUS DATA PASIEN
+      function deleteDokter(id) {
+        const dokterModal = bootstrap.Modal.getInstance(
+          document.querySelector("#dokterModal")
+        );
+        fetch("http://localhost:1337/api/dokters/" + id, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            getDokter();
+            dokterModal.hide();
+          });
+      }
+
+      // EKSEKUSI GET PASIEN SAAT AWAL HALAMAN DIMUAT
+      getDokter();
+    </script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

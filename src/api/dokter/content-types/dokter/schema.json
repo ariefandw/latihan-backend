@@ -1,0 +1,38 @@
+{
+  "kind": "collectionType",
+  "collectionName": "dokters",
+  "info": {
+    "singularName": "dokter",
+    "pluralName": "dokters",
+    "displayName": "Dokter"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "no_str": {
+      "type": "string"
+    },
+    "nama": {
+      "type": "string"
+    },
+    "jenis_kelamin": {
+      "type": "enumeration",
+      "enum": [
+        "laki-laki",
+        "perempuan"
+      ]
+    },
+    "spesialis": {
+      "type": "enumeration",
+      "enum": [
+        "umum",
+        "bedah_syaraf",
+        "obgyn",
+        "penyakit_dalam",
+        "mata"
+      ]
+    }
+  }
+}
